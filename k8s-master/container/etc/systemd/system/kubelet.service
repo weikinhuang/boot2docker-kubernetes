@@ -17,7 +17,23 @@ ExecStartPre=/bin/mkdir -p /etc/kubernetes/checkpoint-secrets
 ExecStartPre=/bin/mkdir -p /etc/kubernetes/inactive-manifests
 ExecStartPre=/bin/mkdir -p /var/lib/cni
 ExecStartPre=/bin/mkdir -p /opt/cni/bin
-ExecStart=/usr/local/bin/hyperkube kubelet \
+ExecStart=/usr/bin/docker run \
+    --net=host \
+    --pid=host \
+    --privileged \
+    -v /dev:/dev \
+    -v /sys:/sys:ro \
+    -v /var/run:/var/run:rw \
+    -v /var/lib/docker/:/var/lib/docker:rw \
+    -v /var/lib/kubelet/:/var/lib/kubelet:shared \
+    -v /var/log:/var/log:shared \
+    -v /srv/kubernetes:/srv/kubernetes:ro \
+    -v /etc/kubernetes:/etc/kubernetes:ro \
+    -v /etc/resolv.conf:/etc/resolv.conf:ro \
+    -v /var/lib/cni:/var/lib/cni:rw \
+    -v /opt/cni/bin:/opt/cni/bin:rw \
+    quay.io/coreos/hyperkube:v1.7.5_coreos.0 \
+    /hyperkube kubelet \
         --allow-privileged \
         --anonymous-auth=false \
         --client-ca-file=/etc/kubernetes/ca.crt \
@@ -25,16 +41,14 @@ ExecStart=/usr/local/bin/hyperkube kubelet \
         --cluster_domain=cluster.local \
         --cni-conf-dir=/etc/kubernetes/cni/net.d \
         --exit-on-lock-contention \
-        --hostname-override=k8s \
         --kubeconfig=/etc/kubernetes/kubeconfig \
         --lock-file=/var/run/lock/kubelet.lock \
         --network-plugin=cni \
         --pod-manifest-path=/etc/kubernetes/manifests \
-        --eviction-hard=memory.available<5% \
-        --eviction-soft=memory.available<7% \
+        --eviction-hard="memory.available<5%" \
+        --eviction-soft="memory.available<7%" \
         --eviction-soft-grace-period=memory.available=2m \
         --eviction-pressure-transition-period=5m \
-        --register-with-taints=fs-only=true:NoSchedule \
         --require-kubeconfig \
         --cgroups-per-qos=false \
         --enforce-node-allocatable= \
@@ -46,3 +60,4 @@ KillMode=process
 
 [Install]
 WantedBy=multi-user.target
+

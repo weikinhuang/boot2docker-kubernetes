@@ -4,22 +4,17 @@ RUN set -x \
     && apt-get update -qq \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
         apt-transport-https \
-        ca-certificates \
-        wget \
-        curl \
-        iptables \
-        ipcalc \
-        ethtool \
-        dmsetup \
-        iproute2 \
-        net-tools \
-        iputils-ping \
-        tcpdump \
-    && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
         bridge-utils \
+        ca-certificates \
+        curl \
+        dmsetup \
+        ethtool \
         ipcalc \
-        jq \
-        liblz4-tool \
+        iproute2 \
+        iptables \
+        iputils-ping \
+        net-tools \
+        tcpdump \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -35,13 +30,7 @@ RUN set -x \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ENV K8S_VERSION=v1.7.5
-RUN set -x \
-    && curl -sSL https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/linux/amd64/hyperkube > /usr/local/bin/hyperkube \
-    && chmod +x /usr/local/bin/hyperkube
-
 COPY container/ /
 
 RUN set -x \
-    && ln -s /etc/systemd/system/kubelet.path /etc/systemd/system/multi-user.target.wants/kubelet.path \
-    && ln -s /etc/systemd/system/kubelet.service /etc/systemd/system/multi-user.target.wants/kubelet.service
+    && systemctl enable kubelet.path

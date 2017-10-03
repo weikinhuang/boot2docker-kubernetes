@@ -4,14 +4,16 @@ version: '2'
 # docker-machine create -d vmwarefusion --vmwarefusion-cpu-count=2 --vmwarefusion-disk-size=40000 --vmwarefusion-memory-size=2048 k8
 # eval $(docker-machine env k8)
 # kubectl --server $(docker-machine ip k8):8080
+# set up boot2docker for systemd
+# docker run --rm --privileged -v /:/host solita/ubuntu-systemd setup
 services:
   k8s-master:
     build:
-      context: ./k8s
+      context: ./k8s-master
+    hostname: k8s-master
     working_dir: /data
     tty: true
     privileged: true
-#    network_mode: host
     security_opt:
       - seccomp=unconfined
     ports:
@@ -19,13 +21,37 @@ services:
     volumes:
       # outside data dir access
       - ./data:/data
+      - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - mnt-share-data:/mnt/share/data:rw
       - var-lib-docker:/var/lib/docker:rw
-      - ./k8s/container/etc/systemd/system/kubelet.service:/etc/systemd/system/kubelet.service:ro
+      - ./k8s-master/container/etc/systemd/system/kubelet.service:/etc/systemd/system/kubelet.service:ro
       - ./abc.sh:/abc.sh:ro
+    tmpfs:
+      - /run
+      - /run/lock
+
+  k8s-node-1:
+    build:
+      context: ./k8s-node
+    hostname: k8s-node-1
+    working_dir: /data
+    tty: true
+    privileged: true
+    security_opt:
+      - seccomp=unconfined
+    volumes:
+      # outside data dir access
+      - ./data:/data
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - mnt-share-data:/mnt/share/data:rw
+      - var-lib-docker-n1:/var/lib/docker:rw
+      - ./k8s-node/container/etc/systemd/system/kubeconfig.service:/etc/systemd/system/kubeconfig.service:ro
     tmpfs:
       - /run
       - /run/lock
 
 volumes:
   var-lib-docker:
+  var-lib-docker-n1:
+  mnt-share-data:

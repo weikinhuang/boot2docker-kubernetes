@@ -41,7 +41,6 @@ ExecStart=/usr/bin/docker run \
         --cluster_domain=cluster.local \
         --cni-conf-dir=/etc/kubernetes/cni/net.d \
         --exit-on-lock-contention \
-        --hostname-override=k8s-master \
         --kubeconfig=/etc/kubernetes/kubeconfig \
         --lock-file=/var/run/lock/kubelet.lock \
         --network-plugin=cni \
@@ -52,8 +51,7 @@ ExecStart=/usr/bin/docker run \
         --eviction-pressure-transition-period=5m \
         --require-kubeconfig \
         --cgroups-per-qos=false \
-        --enforce-node-allocatable= \
-        --node-labels=node-role.kubernetes.io/master,master=true
+        --enforce-node-allocatable=
 Restart=always
 StartLimitInterval=0
 RestartSec=10
