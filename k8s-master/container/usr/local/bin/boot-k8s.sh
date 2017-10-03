@@ -9,19 +9,30 @@ fi
 # clean up old running containers
 docker rm -f $(docker ps -aq) || true
 
-# generate assets for bootkube
-docker run --rm \
-    -w /data \
-    -v /root:/data \
-    quay.io/coreos/bootkube:v0.6.2 \
-    /bootkube \
-    render \
-    --asset-dir=assets \
-    --experimental-self-hosted-etcd \
-    --api-servers=https://k8s-master:6443 \
-    --pod-cidr=10.2.0.0/16 \
-    --service-cidr=10.3.0.0/16 \
-    --api-server-alt-names=IP=$(ip addr | grep eth0 | grep inet | awk '{print $2}' | cut -d '/' -f1),IP=127.0.0.1,DNS=k8s-master
+# create assets for bootkube
+if [[ -d /data/assets ]]; then
+    cp -a /data/assets /root
+else
+    # generate assets for bootkube
+    docker run --rm \
+        -w /data \
+        -v /root:/data \
+        ${BOOTKUBE_IMAGE_URL}:${BOOTKUBE_IMAGE_TAG} \
+        /bootkube \
+        render \
+        --asset-dir=assets \
+        --experimental-self-hosted-etcd \
+        --api-servers=https://k8s-master:6443 \
+        --pod-cidr=${BOOTKUBE_CONF_POD_CIDR:-10.2.0.0/16} \
+        --service-cidr=${BOOTKUBE_CONF_SERVICE_CIDR:-10.3.0.0/16} \
+        ${BOOTKUBE_CONF_ADDITIONAL_ARGS:-} \
+        --api-server-alt-names=IP=$(ip addr | grep eth0 | grep inet | awk '{print $2}' | cut -d '/' -f1),IP=127.0.0.1,DNS=k8s-master
+
+    # use defined version of k8s
+    grep -R -l 'image: quay.io/coreos/hyperkube:' /root/assets \
+        | grep '.yaml$' \
+        | xargs sed -i -E "s#image: quay.io/coreos/hyperkube:.*#image: quay.io/coreos/hyperkube:${HYPERKUBE_IMAGE_TAG}#g"
+fi
 
 # copy assets for kubelet
 mkdir -p /etc/kubernetes
@@ -34,7 +45,7 @@ docker run --rm \
     -v /etc/kubernetes:/etc/kubernetes \
     -v /root/assets:/data \
     -w /data \
-    quay.io/coreos/bootkube:v0.6.2 \
+    ${BOOTKUBE_IMAGE_URL}:${BOOTKUBE_IMAGE_TAG} \
     /bootkube start --asset-dir=/data
 
 # copy kubeconfig for other nodes

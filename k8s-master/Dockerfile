@@ -30,9 +30,31 @@ RUN set -x \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# default env variables
+ARG KUBERNETES_VERSION=v1.7.5
+ENV KUBERNETES_VERSION $KUBERNETES_VERSION
+
+ARG BOOTKUBE_IMAGE_URL=quay.io/coreos/bootkube
+ARG BOOTKUBE_IMAGE_TAG=v0.6.2
+ENV BOOTKUBE_IMAGE_URL $BOOTKUBE_IMAGE_URL
+ENV BOOTKUBE_IMAGE_TAG $BOOTKUBE_IMAGE_TAG
+
+ARG HYPERKUBE_IMAGE_URL=quay.io/coreos/hyperkube
+ARG HYPERKUBE_IMAGE_TAG=v1.7.5_coreos.0
+ENV HYPERKUBE_IMAGE_URL $HYPERKUBE_IMAGE_URL
+ENV HYPERKUBE_IMAGE_TAG $HYPERKUBE_IMAGE_TAG
+
+RUN set -x \
+    && mkdir -p /data \
+    && echo "KUBERNETES_VERSION=${KUBERNETES_VERSION}" > /data/k8s.env \
+    && echo "BOOTKUBE_IMAGE_URL=${BOOTKUBE_IMAGE_URL}" >> /data/k8s.env \
+    && echo "BOOTKUBE_IMAGE_TAG=${BOOTKUBE_IMAGE_TAG}" >> /data/k8s.env \
+    && echo "HYPERKUBE_IMAGE_URL=${HYPERKUBE_IMAGE_URL}" >> /data/k8s.env \
+    && echo "HYPERKUBE_IMAGE_TAG=${HYPERKUBE_IMAGE_TAG}" >> /data/k8s.env
+
 # install kubectl on master
 RUN set -x \
-    && curl -sSL --fail https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl > /usr/local/bin/kubectl \
+    && curl -sSL --fail https://storage.googleapis.com/kubernetes-release/release/${KUBERNETES_VERSION}/bin/linux/amd64/kubectl > /usr/local/bin/kubectl \
     && chmod +x /usr/local/bin/kubectl
 
 COPY container/ /
