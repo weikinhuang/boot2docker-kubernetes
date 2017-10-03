@@ -1,0 +1,13 @@
+[Unit]
+Description=Bootkube Kubernetes Bootstrap
+Documentation=https://github.com/kubernetes-incubator/bootkube
+Requires=docker.service network-online.target
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/local/bin/boot-k8s.sh
+
+[Install]
+WantedBy=multi-user.target
