@@ -1,24 +1,12 @@
-[Unit]
-Description=Kubernetes Kubelet Server
-Documentation=https://github.com/kubernetes/kubernetes
-Requires=docker.service network-online.target
-After=docker.service network-online.target
+#!/usr/bin/env bash
+set -euo pipefail
+#IFS=$'\n\t'
 
-[Service]
-EnvironmentFile=/data/k8s.env
-ExecStartPre=/bin/mkdir -p /var/lib/kubelet
-ExecStartPre=/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
-ExecStartPre=/bin/mount --bind /var/log /var/log
-ExecStartPre=/bin/mount --make-shared /var/lib/kubelet
-ExecStartPre=/bin/mount --make-shared /var/log
-ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
-ExecStartPre=/bin/mkdir -p /srv/kubernetes/manifests
-ExecStartPre=/bin/mkdir -p /etc/kubernetes/cni/net.d
-ExecStartPre=/bin/mkdir -p /etc/kubernetes/checkpoint-secrets
-ExecStartPre=/bin/mkdir -p /etc/kubernetes/inactive-manifests
-ExecStartPre=/bin/mkdir -p /var/lib/cni
-ExecStartPre=/bin/mkdir -p /opt/cni/bin
-ExecStart=/usr/bin/docker run \
+env
+
+set -x
+
+exec /usr/bin/docker run \
     --net=host \
     --pid=host \
     --privileged \
@@ -52,11 +40,7 @@ ExecStart=/usr/bin/docker run \
         --eviction-pressure-transition-period=5m \
         --require-kubeconfig \
         --cgroups-per-qos=false \
-        --enforce-node-allocatable=
-Restart=always
-StartLimitInterval=0
-RestartSec=10
-KillMode=process
-
-[Install]
-WantedBy=multi-user.target
+        --enforce-node-allocatable= \
+        ${KUBELET_ARGS_EXTRA:-} \
+        ${KUBELET_ARGS_COMPOSE:-} \
+        ${KUBELET_ARGS:-}

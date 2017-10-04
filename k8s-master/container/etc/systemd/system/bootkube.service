@@ -7,7 +7,8 @@ After=docker.service network-online.target
 [Service]
 Type=oneshot
 RemainAfterExit=true
-EnvironmentFile=/data/k8s.env
+EnvironmentFile=/etc/systemd/system/bootkube.env
+EnvironmentFile=/etc/systemd/system/hyperkube.env
 ExecStart=/usr/local/bin/boot-k8s.sh
 
 [Install]

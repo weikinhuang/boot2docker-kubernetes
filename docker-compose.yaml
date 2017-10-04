@@ -15,6 +15,8 @@ services:
     privileged: true
     security_opt:
       - seccomp=unconfined
+    environment:
+      - K8S_MASTER_NODE=1
     ports:
       - 6443:6443
     volumes:
@@ -25,15 +27,19 @@ services:
       - mnt-share-data:/mnt/share/data:rw
       - var-lib-docker:/var/lib/docker:rw
       - ./k8s-master/container/etc/systemd/system/kubelet.service:/etc/systemd/system/kubelet.service:ro
+      - ./k8s-master/container/etc/.overlay:/etc/.overlay:ro
       - ./k8s-master/container/usr/local/bin/boot-k8s.sh:/usr/local/bin/boot-k8s.sh:ro
+      - ./k8s-master/container/usr/local/bin/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh:ro
+      - ./k8s-master/container/usr/local/bin/kubelet-wrapper.sh:/usr/local/bin/kubelet-wrapper.sh:ro
       - ./abc.sh:/abc.sh:ro
     tmpfs:
       - /run
       - /run/lock
 
+  # repeat for each additional worker node
   k8s-node-1:
     build:
-      context: ./k8s-node
+      context: ./k8s-master
     hostname: k8s-node-1
     working_dir: /data
     tty: true
@@ -46,7 +52,8 @@ services:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - mnt-share-data:/mnt/share/data:rw
       - var-lib-docker-n1:/var/lib/docker:rw
-      - ./k8s-node/container/etc/systemd/system/kubeconfig.service:/etc/systemd/system/kubeconfig.service:ro
+      - ./k8s-master/container/etc/systemd/system/kubeconfig.service:/etc/systemd/system/kubeconfig.service:ro
+      - ./k8s-master/container/usr/local/bin/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh:ro
     tmpfs:
       - /run
       - /run/lock

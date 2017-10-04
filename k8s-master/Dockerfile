@@ -44,21 +44,19 @@ ARG HYPERKUBE_IMAGE_TAG=v1.7.5_coreos.0
 ENV HYPERKUBE_IMAGE_URL $HYPERKUBE_IMAGE_URL
 ENV HYPERKUBE_IMAGE_TAG $HYPERKUBE_IMAGE_TAG
 
+# install (latest) kubectl
 RUN set -x \
-    && mkdir -p /data \
-    && echo "KUBERNETES_VERSION=${KUBERNETES_VERSION}" > /data/k8s.env \
-    && echo "BOOTKUBE_IMAGE_URL=${BOOTKUBE_IMAGE_URL}" >> /data/k8s.env \
-    && echo "BOOTKUBE_IMAGE_TAG=${BOOTKUBE_IMAGE_TAG}" >> /data/k8s.env \
-    && echo "HYPERKUBE_IMAGE_URL=${HYPERKUBE_IMAGE_URL}" >> /data/k8s.env \
-    && echo "HYPERKUBE_IMAGE_TAG=${HYPERKUBE_IMAGE_TAG}" >> /data/k8s.env
-
-# install kubectl on master
-RUN set -x \
-    && curl -sSL --fail https://storage.googleapis.com/kubernetes-release/release/${KUBERNETES_VERSION}/bin/linux/amd64/kubectl > /usr/local/bin/kubectl \
+    && curl -sSL --fail https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl > /usr/local/bin/kubectl \
     && chmod +x /usr/local/bin/kubectl
 
+# add file base
 COPY container/ /
 
+# enable docker & kubelet
 RUN set -x \
-    && systemctl enable kubelet.path \
-    && systemctl enable bootkube.service
+    && systemctl enable docker.service \
+    && systemctl enable kubelet.path
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+# Workaround for docker/docker#27202, technique based on comments from docker/docker#9212
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
