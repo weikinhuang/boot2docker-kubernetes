@@ -6,10 +6,10 @@ set -x
 
 if [[ -n ${K8S_MASTER_NODE:-} ]] && echo "$@" | grep -q '/sbin/init'; then
     # setup systemd cgroup hierarchy at /sys/fs/cgroup/systemd
-    setup || true
+    docker-host.sh run --rm --privileged -v /:/host "${SYSTEMD_SETUP_IMAGE}" setup || true
 else
     # wait for master node to finish `setup`
-    sleep 3
+    sleep 5
 fi
 
 if [[ ! -e /.node-setup ]]; then

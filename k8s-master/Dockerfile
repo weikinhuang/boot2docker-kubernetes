@@ -13,6 +13,7 @@ RUN set -x \
         iproute2 \
         iptables \
         iputils-ping \
+        jq \
         net-tools \
         socat \
         tcpdump \
@@ -44,6 +45,9 @@ ARG HYPERKUBE_IMAGE_URL=quay.io/coreos/hyperkube
 ARG HYPERKUBE_IMAGE_TAG=${KUBERNETES_VERSION}_coreos.0
 ENV HYPERKUBE_IMAGE_URL $HYPERKUBE_IMAGE_URL
 ENV HYPERKUBE_IMAGE_TAG $HYPERKUBE_IMAGE_TAG
+
+# Image used to run setup host for systemd in docker
+ENV SYSTEMD_SETUP_IMAGE solita/ubuntu-systemd:latest
 
 # install (latest) kubectl
 RUN set -x \

@@ -21,8 +21,6 @@ services:
     ports:
       - 6443:6443
     volumes:
-      # for setting up systemd host mounts
-      - /:/host
       # for setting up bootkube's auto host kubeconfig
       - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
       # for systemd

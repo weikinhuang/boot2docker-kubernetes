@@ -50,6 +50,10 @@ mkdir -p /etc/kubernetes
 cp /root/assets/auth/kubeconfig /etc/kubernetes/kubeconfig
 cp /root/assets/tls/ca.crt /etc/kubernetes/ca.crt
 
+# set up local kubectl access
+mkdir -p /root/.kube
+cat /root/assets/auth/kubeconfig > /root/.kube/config
+
 # start bootstrap control plane
 docker run --rm \
     --net=host \
@@ -63,7 +67,7 @@ docker run --rm \
 cat /root/assets/auth/kubeconfig > /mnt/share/data/kubeconfig.node
 
 # create kubeconfig for host usage outside of container
-HOST_IP=$(docker -H unix:///mnt/HOST_DOCKER.sock run --rm --net=host alpine:latest ip addr | grep '\<eth0\>' | grep inet | awk '{print $2}' | cut -d '/' -f1)
+HOST_IP=$(docker-host.sh run --rm --net=host alpine:latest ip addr | grep '\<eth0\>' | grep inet | awk '{print $2}' | cut -d '/' -f1)
 cat /root/assets/auth/kubeconfig \
     | sed "s#server: https://k8s-master:6443#server: https://${HOST_IP}:6443#" \
     | sed "s/certificate-authority-data: .*/insecure-skip-tls-verify: true/" \

@@ -10,6 +10,8 @@ done
 set -x
 
 exec /usr/bin/docker run \
+    --rm \
+    --name kubelet \
     --net=host \
     --pid=host \
     --privileged \
