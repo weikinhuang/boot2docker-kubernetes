@@ -50,8 +50,6 @@ services:
     security_opt:
       - seccomp=unconfined
     volumes:
-      # for setting up systemd host mounts
-      - /:/host
       # for systemd
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       # for dind

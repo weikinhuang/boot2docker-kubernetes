@@ -5,16 +5,21 @@ IFS=$'\n\t'
 set -x
 
 if [[ ! -e /.node-setup ]]; then
-    setup || true
     if [[ /data/overlay ]]; then
         cp -av /data/overlay/ /etc/
     fi
     if [[ -n ${K8S_MASTER_NODE:-} ]]; then
+        # setup systemd host cgroup mounts
+        setup || true
+        # set up master node configs
         cp -av /etc/.overlay/master/* /etc/
         . setup-master-node.sh
     else
+        # set up worker node configs
         cp -av /etc/.overlay/worker/* /etc/
         . setup-worker-node.sh
+        # wait for master node to finish `setup`
+        sleep 3
     fi
 
     env | grep '^BOOTKUBE_' > /etc/systemd/system/bootkube.env
