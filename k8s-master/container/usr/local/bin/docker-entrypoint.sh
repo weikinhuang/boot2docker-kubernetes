@@ -5,6 +5,7 @@ IFS=$'\n\t'
 set -x
 
 if [[ ! -e /.node-setup ]]; then
+    setup || true
     if [[ /data/overlay ]]; then
         cp -av /data/overlay/ /etc/
     fi

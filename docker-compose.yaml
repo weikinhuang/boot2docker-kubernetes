@@ -3,8 +3,6 @@ version: '2'
 # docker-machine create -d vmwarefusion --vmwarefusion-cpu-count=2 --vmwarefusion-disk-size=40000 --vmwarefusion-memory-size=2048 k8
 # eval $(docker-machine env k8)
 # KUBECONFIG=$(pwd)/data/kubeconfig kubectl get nodes
-# set up boot2docker for systemd
-# docker run --rm --privileged -v /:/host solita/ubuntu-systemd setup
 services:
   k8s-master:
     build:
@@ -20,18 +18,23 @@ services:
     ports:
       - 6443:6443
     volumes:
-      # outside data dir access
-      - ./data:/data
+      # for setting up systemd host mounts
+      - /:/host
+      # for setting up bootkube's auto host kubeconfig
       - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
+      # for systemd
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      # for dind
       - mnt-share-data:/mnt/share/data:rw
       - var-lib-docker:/var/lib/docker:rw
+      # outside data dir access
+      - ./data:/data
+      # for dev
       - ./k8s-master/container/etc/systemd/system/kubelet.service:/etc/systemd/system/kubelet.service:ro
       - ./k8s-master/container/etc/.overlay:/etc/.overlay:ro
       - ./k8s-master/container/usr/local/bin/boot-k8s.sh:/usr/local/bin/boot-k8s.sh:ro
       - ./k8s-master/container/usr/local/bin/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh:ro
       - ./k8s-master/container/usr/local/bin/kubelet-wrapper.sh:/usr/local/bin/kubelet-wrapper.sh:ro
-      - ./abc.sh:/abc.sh:ro
     tmpfs:
       - /run
       - /run/lock
@@ -47,11 +50,16 @@ services:
     security_opt:
       - seccomp=unconfined
     volumes:
-      # outside data dir access
-      - ./data:/data
+      # for setting up systemd host mounts
+      - /:/host
+      # for systemd
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      # for dind
       - mnt-share-data:/mnt/share/data:rw
       - var-lib-docker-n1:/var/lib/docker:rw
+      # outside data dir access
+      - ./data:/data
+      # for dev
       - ./k8s-master/container/etc/systemd/system/kubeconfig.service:/etc/systemd/system/kubeconfig.service:ro
       - ./k8s-master/container/usr/local/bin/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh:ro
     tmpfs:
