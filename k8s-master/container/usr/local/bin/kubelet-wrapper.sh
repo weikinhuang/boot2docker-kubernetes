@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-#IFS=$'\n\t'
 
-env
+# make use of all args starting with KUBELET_ARGS*
+KUBELET_EXTRA_ARGS=( )
+for envname in ${!KUBELET_ARGS*}; do
+    KUBELET_EXTRA_ARGS+=( $(printenv "${envname}") )
+done
 
 set -x
 
@@ -41,6 +44,4 @@ exec /usr/bin/docker run \
         --require-kubeconfig \
         --cgroups-per-qos=false \
         --enforce-node-allocatable= \
-        ${KUBELET_ARGS_EXTRA:-} \
-        ${KUBELET_ARGS_COMPOSE:-} \
-        ${KUBELET_ARGS:-}
+        ${KUBELET_EXTRA_ARGS[@]}

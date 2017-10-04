@@ -6,6 +6,7 @@ After=docker.service network-online.target
 
 [Service]
 EnvironmentFile=/etc/systemd/system/hyperkube.env
+EnvironmentFile=/etc/systemd/system/kubelet.env
 ExecStartPre=/bin/mkdir -p /var/lib/kubelet
 ExecStartPre=/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
 ExecStartPre=/bin/mount --bind /var/log /var/log

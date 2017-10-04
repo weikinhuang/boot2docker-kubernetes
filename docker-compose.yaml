@@ -17,6 +17,7 @@ services:
       - K8S_MASTER_NODE=1
       - BOOTKUBE_IMAGE_TAG=v0.7.0
       - HYPERKUBE_IMAGE_TAG=v1.8.0_coreos.0
+      - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
     ports:
       - 6443:6443
     volumes:
@@ -51,6 +52,8 @@ services:
     privileged: true
     security_opt:
       - seccomp=unconfined
+    environment:
+      - HYPERKUBE_IMAGE_TAG=v1.8.0_coreos.0
     volumes:
       # for systemd
       - /sys/fs/cgroup:/sys/fs/cgroup:ro

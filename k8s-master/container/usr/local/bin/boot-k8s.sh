@@ -13,6 +13,14 @@ docker rm -f $(docker ps -aq) || true
 if [[ -d /data/assets ]]; then
     cp -a /data/assets /root
 else
+    # make use of all args starting with BOOTKUBE_CONF_*
+    BOOTKUBE_EXTRA_ARGS=( )
+    for envname in ${!BOOTKUBE_CONF_*}; do
+        if [[ "$envname" != "BOOTKUBE_CONF_POD_CIDR" ]] && [[ "$envname" != "BOOTKUBE_CONF_SERVICE_CIDR" ]]; then
+            BOOTKUBE_EXTRA_ARGS+=( $(printenv "${envname}") )
+        fi
+    done
+
     # generate assets for bootkube
     docker run --rm \
         -w /data \
@@ -25,8 +33,7 @@ else
         --api-servers=https://k8s-master:6443 \
         --pod-cidr=${BOOTKUBE_CONF_POD_CIDR:-10.2.0.0/16} \
         --service-cidr=${BOOTKUBE_CONF_SERVICE_CIDR:-10.3.0.0/16} \
-        --network-provider=experimental-calico \
-        ${BOOTKUBE_CONF_ADDITIONAL_ARGS:-} \
+        ${BOOTKUBE_EXTRA_ARGS[@]} \
         --api-server-alt-names=IP=$(ip addr | grep eth0 | grep inet | awk '{print $2}' | cut -d '/' -f1),IP=127.0.0.1,DNS=k8s-master
 
     # use defined version of k8s

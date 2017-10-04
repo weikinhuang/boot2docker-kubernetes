@@ -57,6 +57,9 @@ RUN set -x \
     && systemctl enable docker.service \
     && systemctl enable kubelet.path
 
+# docker files should avoid the overlay when possible
+VOLUME /var/lib/docker
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 # Workaround for docker/docker#27202, technique based on comments from docker/docker#9212
 CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]

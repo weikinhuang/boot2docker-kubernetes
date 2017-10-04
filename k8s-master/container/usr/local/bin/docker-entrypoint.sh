@@ -18,6 +18,7 @@ if [[ ! -e /.node-setup ]]; then
     fi
     if [[ -n ${K8S_MASTER_NODE:-} ]]; then
         # set up master node configs
+        rm -f /mnt/share/data/kubeconfig.node
         cp -av /etc/.overlay/master/* /etc/
         . setup-master-node.sh
     else
@@ -26,8 +27,9 @@ if [[ ! -e /.node-setup ]]; then
         . setup-worker-node.sh
     fi
 
-    env | grep '^BOOTKUBE_' > /etc/systemd/system/bootkube.env
-    env | grep '^HYPERKUBE_' > /etc/systemd/system/hyperkube.env
+    env | grep '^BOOTKUBE_' > /etc/systemd/system/bootkube.env || true
+    env | grep '^HYPERKUBE_' > /etc/systemd/system/hyperkube.env || true
+    env | grep '^KUBELET_' > /etc/systemd/system/kubelet.env || true
 
     touch /.node-setup
 fi
