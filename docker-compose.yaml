@@ -43,10 +43,9 @@ services:
       - /run/lock
 
   # repeat for each additional worker node
-  k8s-node-1:
+  k8s-node:
     build:
       context: ./k8s-master
-    hostname: k8s-node-1
     working_dir: /data
     tty: true
     privileged: true
@@ -59,7 +58,6 @@ services:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       # for dind
       - mnt-share-data:/mnt/share/data:rw
-      - var-lib-docker-n1:/var/lib/docker:rw
       # outside data dir access
       - ./data:/data
       # for dev
@@ -71,5 +69,4 @@ services:
 
 volumes:
   var-lib-docker:
-  var-lib-docker-n1:
   mnt-share-data:

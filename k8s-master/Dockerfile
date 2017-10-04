@@ -14,6 +14,7 @@ RUN set -x \
         iptables \
         iputils-ping \
         net-tools \
+        socat \
         tcpdump \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
