@@ -4,13 +4,19 @@ IFS=$'\n\t'
 
 set -x
 
+if [[ -n ${K8S_MASTER_NODE:-} ]] && echo "$@" | grep -q '/sbin/init'; then
+    # setup systemd cgroup hierarchy at /sys/fs/cgroup/systemd
+    setup || true
+else
+    # wait for master node to finish `setup`
+    sleep 3
+fi
+
 if [[ ! -e /.node-setup ]]; then
-    if [[ /data/overlay ]]; then
-        cp -av /data/overlay/ /etc/
+    if [[ -d /data/overlay ]]; then
+        cp -av /data/overlay/* /etc/
     fi
     if [[ -n ${K8S_MASTER_NODE:-} ]]; then
-        # setup systemd host cgroup mounts
-        setup || true
         # set up master node configs
         cp -av /etc/.overlay/master/* /etc/
         . setup-master-node.sh
@@ -18,8 +24,6 @@ if [[ ! -e /.node-setup ]]; then
         # set up worker node configs
         cp -av /etc/.overlay/worker/* /etc/
         . setup-worker-node.sh
-        # wait for master node to finish `setup`
-        sleep 3
     fi
 
     env | grep '^BOOTKUBE_' > /etc/systemd/system/bootkube.env

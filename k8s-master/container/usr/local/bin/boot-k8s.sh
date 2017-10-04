@@ -25,6 +25,7 @@ else
         --api-servers=https://k8s-master:6443 \
         --pod-cidr=${BOOTKUBE_CONF_POD_CIDR:-10.2.0.0/16} \
         --service-cidr=${BOOTKUBE_CONF_SERVICE_CIDR:-10.3.0.0/16} \
+        --network-provider=experimental-calico \
         ${BOOTKUBE_CONF_ADDITIONAL_ARGS:-} \
         --api-server-alt-names=IP=$(ip addr | grep eth0 | grep inet | awk '{print $2}' | cut -d '/' -f1),IP=127.0.0.1,DNS=k8s-master
 
@@ -32,6 +33,9 @@ else
     grep -R -l 'image: quay.io/coreos/hyperkube:' /root/assets \
         | grep '.yaml$' \
         | xargs sed -i -E "s#image: quay.io/coreos/hyperkube:.*#image: quay.io/coreos/hyperkube:${HYPERKUBE_IMAGE_TAG}#g"
+    grep -R -l 'rbac.authorization.k8s.io/v1alpha1' /root/assets \
+        | grep '.yaml$' \
+        | xargs sed -i -E "s#rbac.authorization.k8s.io/v1alpha1#rbac.authorization.k8s.io/v1#g"
 fi
 
 # copy assets for kubelet
