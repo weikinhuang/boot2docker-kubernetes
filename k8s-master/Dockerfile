@@ -59,7 +59,6 @@ COPY container/ /
 
 # enable docker & kubelet
 RUN set -x \
-    && systemctl enable clean-k8s.service \
     && systemctl enable docker.service \
     && systemctl enable kubelet.path \
     && systemctl enable import-saved-images.service

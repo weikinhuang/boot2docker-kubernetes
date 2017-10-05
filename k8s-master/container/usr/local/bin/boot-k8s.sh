@@ -2,6 +2,17 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+if [[ -e /mnt/share/data/.initialized ]]; then
+    exit 0
+fi
+
+# this should only ever run once!
+# if bootkube fails, containers must be rebuilt with `docker-compose down -v`
+touch /mnt/share/data/.initialized
+
+# clean up old running containers
+docker rm -f $(docker ps -aq) || true
+
 # create assets for bootkube
 if [[ ! -d /root/assets ]]; then
     if [[ -d /data/assets ]]; then
@@ -24,7 +35,7 @@ if [[ ! -d /root/assets ]]; then
             /bootkube \
             render \
             --asset-dir=assets \
-            --experimental-self-hosted-etcd \
+            --etcd-servers=http://etcd1:2379 \
             --api-servers=https://k8s-master:6443 \
             --pod-cidr=${BOOTKUBE_CONF_POD_CIDR:-10.2.0.0/16} \
             --service-cidr=${BOOTKUBE_CONF_SERVICE_CIDR:-10.3.0.0/16} \
@@ -65,13 +76,11 @@ cat /root/assets/auth/kubeconfig > /mnt/share/data/kubeconfig.node
 
 # create kubeconfig for host usage outside of container
 HOST_IP=$(docker-host.sh run --rm --net=host alpine:latest ip addr | grep '\<eth0\>' | grep inet | awk '{print $2}' | cut -d '/' -f1)
+HOST_PORT=$(self-container-info.sh | jq -r '.[0].NetworkSettings.Ports["6443/tcp"][0].HostPort')
 cat /root/assets/auth/kubeconfig \
-    | sed "s#server: https://k8s-master:6443#server: https://${HOST_IP}:6443#" \
+    | sed "s#server: https://k8s-master:6443#server: https://${HOST_IP}:${HOST_PORT}#" \
     | sed "s/certificate-authority-data: .*/insecure-skip-tls-verify: true/" \
     > /data/kubeconfig
-
-# this should only ever run once!
-touch /.initialized
 
 # bootstrap any manifests
 if [[ -d /data/bootstrap-manifests ]]; then
