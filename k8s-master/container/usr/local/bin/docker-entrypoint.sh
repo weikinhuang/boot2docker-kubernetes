@@ -31,6 +31,13 @@ if [[ ! -e /.node-setup ]]; then
     env | grep '^HYPERKUBE_' > /etc/systemd/system/hyperkube.env || true
     env | grep '^KUBELET_' > /etc/systemd/system/kubelet.env || true
 
+    echo "K8S_MASTER_NODE=${K8S_MASTER_NODE:-}" >> /etc/systemd/system/kubelet.env || true
+    if [[ -n ${K8S_MASTER_NODE:-} ]]; then
+        echo "KUBELET_HOSTNAME=$(hostname)" >> /etc/systemd/system/kubelet.env || true
+    else
+        echo "KUBELET_HOSTNAME=$(self-container-info.sh | jq -r '.[0].Name' | cut -f2 -d'/' | sed -e 's/[^A-Za-z0-9]/-/g')" >> /etc/systemd/system/kubelet.env || true
+    fi
+
     touch /.node-setup
 fi
 

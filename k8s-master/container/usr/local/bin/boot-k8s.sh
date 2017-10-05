@@ -2,13 +2,6 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-if [[ -e /.initialized ]]; then
-    exit 0
-fi
-
-# clean up old running containers
-docker rm -f $(docker ps -aq) || true
-
 # create assets for bootkube
 if [[ ! -d /root/assets ]]; then
     if [[ -d /data/assets ]]; then
@@ -24,6 +17,7 @@ if [[ ! -d /root/assets ]]; then
 
         # generate assets for bootkube
         docker run --rm \
+            --name=bootkube \
             -w /data \
             -v /root:/data \
             ${BOOTKUBE_IMAGE_URL}:${BOOTKUBE_IMAGE_TAG} \
@@ -58,6 +52,7 @@ cat /root/assets/auth/kubeconfig > /root/.kube/config
 
 # start bootstrap control plane
 docker run --rm \
+    --name=bootkube \
     --net=host \
     -v /etc/kubernetes:/etc/kubernetes \
     -v /root/assets:/data \
@@ -81,5 +76,5 @@ touch /.initialized
 # bootstrap any manifests
 if [[ -d /data/bootstrap-manifests ]]; then
     sleep 15
-    kubectl apply -R -f /data/bootstrap-manifests || true
+    env KUBECONFIG=/root/assets/auth/kubeconfig kubectl apply -R -f /data/bootstrap-manifests || true
 fi

@@ -21,13 +21,12 @@ services:
     ports:
       - 6443:6443
     volumes:
-      # for setting up bootkube's auto host kubeconfig
+      # for setting up bootkube's auto host kubeconfig and getting container info
       - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
       # for systemd
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       # for dind
       - mnt-share-data:/mnt/share/data:rw
-      - var-lib-docker:/var/lib/docker:rw
       # outside data dir access
       - ./data:/data
       # for dev
@@ -52,6 +51,8 @@ services:
     environment:
       - HYPERKUBE_IMAGE_TAG=v1.8.0_coreos.0
     volumes:
+      # for setting up bootkube's auto host kubeconfig and getting container info
+      - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
       # for systemd
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       # for dind
@@ -60,11 +61,11 @@ services:
       - ./data:/data
       # for dev
       - ./k8s-master/container/etc/systemd/system/kubeconfig.service:/etc/systemd/system/kubeconfig.service:ro
+      - ./k8s-master/container/etc/systemd/system/kubelet.service:/etc/systemd/system/kubelet.service:ro
       - ./k8s-master/container/usr/local/bin/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh:ro
     tmpfs:
       - /run
       - /run/lock
 
 volumes:
-  var-lib-docker:
   mnt-share-data:

@@ -1,0 +1,14 @@
+[Unit]
+Description=Reimport docker images if exists to save on bandwidth
+Requires=docker.service network-online.target
+After=docker.service network-online.target
+Before=bootkube.service kubelet.service
+
+[Service]
+EnvironmentFile=/etc/systemd/system/kubelet.env
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/local/bin/import-saved-images.sh
+
+[Install]
+WantedBy=multi-user.target

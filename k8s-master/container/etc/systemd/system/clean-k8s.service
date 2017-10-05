@@ -1,0 +1,16 @@
+[Unit]
+Description=Clean up Kubernetes to re-initialize
+Requires=docker.service network-online.target
+After=docker.service network-online.target
+Before=bootkube.service kubelet.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+EnvironmentFile=/etc/systemd/system/bootkube.env
+EnvironmentFile=/etc/systemd/system/hyperkube.env
+EnvironmentFile=/etc/systemd/system/kubelet.env
+ExecStart=/usr/local/bin/clean-k8s.sh
+
+[Install]
+WantedBy=multi-user.target
