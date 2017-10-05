@@ -4,7 +4,8 @@ version: '2'
 # eval $(docker-machine env k8)
 # KUBECONFIG=$(pwd)/data/kubeconfig kubectl get nodes
 services:
-  k8s-master:
+  # repeat for each additional type of worker node
+  node:
     build:
       context: ./k8s-master
     working_dir: /data
@@ -12,49 +13,29 @@ services:
     privileged: true
     security_opt:
       - seccomp=unconfined
+    environment:
+      - HYPERKUBE_IMAGE_TAG=v1.8.0_coreos.0
+    volumes:
+      # for setting up bootkube's auto host kubeconfig and getting container info
+      - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
+      # for systemd
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      # for sharing data between containers
+      - mnt-share-data:/mnt/share/data:rw
+      # outside data dir access
+      - ./data:/data
+    tmpfs:
+      - /run
+      - /run/lock
+  master:
+    extends:
+      service: node
     environment:
       - K8S_MASTER_NODE=1
       - BOOTKUBE_IMAGE_TAG=v0.7.0
-      - HYPERKUBE_IMAGE_TAG=v1.8.0_coreos.0
       - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
     ports:
       - 6443
-    volumes:
-      # for setting up bootkube's auto host kubeconfig and getting container info
-      - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
-      # for systemd
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      # for sharing data between containers
-      - mnt-share-data:/mnt/share/data:rw
-      # outside data dir access
-      - ./data:/data
-    tmpfs:
-      - /run
-      - /run/lock
-
-  # repeat for each additional worker node
-  k8s-node:
-    build:
-      context: ./k8s-master
-    working_dir: /data
-    tty: true
-    privileged: true
-    security_opt:
-      - seccomp=unconfined
-    environment:
-      - HYPERKUBE_IMAGE_TAG=v1.8.0_coreos.0
-    volumes:
-      # for setting up bootkube's auto host kubeconfig and getting container info
-      - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
-      # for systemd
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      # for sharing data between containers
-      - mnt-share-data:/mnt/share/data:rw
-      # outside data dir access
-      - ./data:/data
-    tmpfs:
-      - /run
-      - /run/lock
 
   # running instance of etcd because etcd operator has issues with durability
   # @see https://github.com/coreos/etcd-operator/issues/1323
