@@ -13,6 +13,9 @@ touch /mnt/share/data/.initialized
 # clean up old running containers
 docker rm -f $(docker ps -aq) || true
 
+HOST_IP=$(docker-host.sh run --rm --net=host alpine:latest ip addr | grep '\<eth0\>' | grep inet | awk '{print $2}' | cut -d '/' -f1)
+NODE_IP=$(ip addr | grep eth0 | grep inet | awk '{print $2}' | cut -d '/' -f1)
+
 # create assets for bootkube
 if [[ ! -d /root/assets ]]; then
     if [[ -d /data/assets ]]; then
@@ -25,6 +28,12 @@ if [[ ! -d /root/assets ]]; then
                 BOOTKUBE_EXTRA_ARGS+=( $(printenv "${envname}") )
             fi
         done
+
+        # use custom CA cert to generate certs
+        if [[ -e /data/tls/ca.crt ]] && [[ -e /data/tls/ca.key ]]; then
+            BOOTKUBE_EXTRA_ARGS+=( --ca-certificate-path=/data/tls/ca.crt )
+            BOOTKUBE_EXTRA_ARGS+=( --ca-private-key-path=/data/tls/ca.key )
+        fi
 
         # generate assets for bootkube
         docker run --rm \
@@ -40,7 +49,7 @@ if [[ ! -d /root/assets ]]; then
             --pod-cidr=${BOOTKUBE_CONF_POD_CIDR:-10.2.0.0/16} \
             --service-cidr=${BOOTKUBE_CONF_SERVICE_CIDR:-10.3.0.0/16} \
             ${BOOTKUBE_EXTRA_ARGS[@]} \
-            --api-server-alt-names=IP=$(ip addr | grep eth0 | grep inet | awk '{print $2}' | cut -d '/' -f1),IP=127.0.0.1,DNS=master
+            --api-server-alt-names=IP=${HOST_IP},IP=${NODE_IP},IP=127.0.0.1,DNS=master,DNS=${HOST_IP}.xip.io,DNS=${NODE_IP}.xip.io,DNS=127.0.0.1.xip.io
 
         # use defined version of k8s
         grep -R -l 'image: quay.io/coreos/hyperkube:' /root/assets \
