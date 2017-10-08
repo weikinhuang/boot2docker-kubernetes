@@ -4,7 +4,7 @@ version: '2'
 # eval $(docker-machine env k8)
 # KUBECONFIG=$(pwd)/data/kubeconfig kubectl get nodes
 services:
-  # repeat for each additional type of worker node
+  # each additional type of node type can simply extend this (see master node)
   node:
     build:
       context: ./k8s-master
@@ -27,6 +27,7 @@ services:
     tmpfs:
       - /run
       - /run/lock
+
   master:
     extends:
       service: node
@@ -35,7 +36,7 @@ services:
       - BOOTKUBE_IMAGE_TAG=v0.7.0
       - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
     ports:
-      - 6443
+      - 6443:6443
 
   # running instance of etcd because etcd operator has issues with durability
   # @see https://github.com/coreos/etcd-operator/issues/1323
@@ -46,13 +47,13 @@ services:
       ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd1:2380
       ETCD_INITIAL_CLUSTER: infra1=http://etcd1:2380
       ETCD_INITIAL_CLUSTER_STATE: new
-      ETCD_INITIAL_CLUSTER_TOKEN: etcd-tasting-01
+      ETCD_INITIAL_CLUSTER_TOKEN: etcd-kube-01
       ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
       ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
       ETCD_ADVERTISE_CLIENT_URLS: http://0.0.0.0:2379
       ETCD_DATA_DIR: /data
     volumes:
-      - etcd-data:/var/lib/etcd-data
+      - etcd-data:/data
 
 volumes:
   mnt-share-data:
