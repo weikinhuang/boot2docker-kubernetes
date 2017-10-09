@@ -1,0 +1,13 @@
+sudo: required
+
+language: bash
+
+services:
+  - docker
+
+script:
+  - docker-compose build
+  - docker-compose up -d
+  - docker-compose exec master journalctl -f -u bootkube.service &
+  - sleep 300
+  - ./test/test-ready.sh
