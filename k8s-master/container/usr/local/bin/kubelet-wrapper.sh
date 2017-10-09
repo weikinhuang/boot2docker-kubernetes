@@ -14,7 +14,7 @@ if [[ -n ${K8S_MASTER_NODE:-} ]]; then
 fi
 
 # kubelet >= v1.8.0 has new flags for swap
-if docker run --rm ${HYPERKUBE_IMAGE_URL}:${HYPERKUBE_IMAGE_TAG} /hyperkube kubelet --help 2>&1 | grep -q fail-swap-on; then
+if docker run --rm ${HYPERKUBE_IMAGE_URL}:${HYPERKUBE_IMAGE_TAG} /hyperkube kubelet --help 2>&1 | grep -q -- --fail-swap-on; then
     KUBELET_EXTRA_ARGS+=( --fail-swap-on=false )
 fi
 

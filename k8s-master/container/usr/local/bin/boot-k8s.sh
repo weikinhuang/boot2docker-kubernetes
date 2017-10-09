@@ -6,6 +6,8 @@ if [[ -e /mnt/share/data/.initialized ]]; then
     exit 0
 fi
 
+set -x
+
 # this should only ever run once!
 # if bootkube fails, containers must be rebuilt with `docker-compose down -v`
 touch /mnt/share/data/.initialized
@@ -44,12 +46,12 @@ if [[ ! -d /root/assets ]]; then
             /bootkube \
             render \
             --asset-dir=assets \
-            --etcd-servers=http://etcd1:2379 \
-            --api-servers=https://master:6443 \
+            --etcd-servers=http://etcd1.:2379 \
+            --api-servers=https://master.:6443 \
             --pod-cidr=${BOOTKUBE_CONF_POD_CIDR:-10.2.0.0/16} \
             --service-cidr=${BOOTKUBE_CONF_SERVICE_CIDR:-10.3.0.0/16} \
             ${BOOTKUBE_EXTRA_ARGS[@]} \
-            --api-server-alt-names=IP=${HOST_IP},IP=${NODE_IP},IP=127.0.0.1,DNS=master,DNS=${HOST_IP}.xip.io,DNS=${NODE_IP}.xip.io,DNS=127.0.0.1.xip.io
+            --api-server-alt-names=IP=${HOST_IP},IP=${NODE_IP},IP=127.0.0.1,DNS=master,DNS=master.,DNS=${HOST_IP}.xip.io,DNS=${NODE_IP}.xip.io,DNS=127.0.0.1.xip.io
 
         # use defined version of k8s
         grep -R -l 'image: quay.io/coreos/hyperkube:' /root/assets \
@@ -84,10 +86,9 @@ docker run --rm \
 cat /root/assets/auth/kubeconfig > /mnt/share/data/kubeconfig.node
 
 # create kubeconfig for host usage outside of container
-HOST_IP=$(docker-host.sh run --rm --net=host alpine:latest ip addr | grep '\<eth0\>' | grep inet | awk '{print $2}' | cut -d '/' -f1)
 HOST_PORT=$(self-container-info.sh | jq -r '.[0].NetworkSettings.Ports["6443/tcp"][0].HostPort')
 cat /root/assets/auth/kubeconfig \
-    | sed "s#server: https://master:6443#server: https://${HOST_IP}:${HOST_PORT}#" \
+    | sed "s#server: https://master.:6443#server: https://${HOST_IP}:${HOST_PORT}#" \
     | sed "s/certificate-authority-data: .*/insecure-skip-tls-verify: true/" \
     > /data/kubeconfig
 
