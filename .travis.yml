@@ -8,6 +8,5 @@ services:
 script:
   - docker-compose build
   - docker-compose up -d
-  - docker-compose exec master journalctl -f -u bootkube.service &
-  - sleep 300
+  - sh -c 'docker-compose exec master journalctl -f -u bootkube.service | tee /dev/stderr | { sed "/Started Bootkube Kubernetes Bootstrap/ q" && kill $$ ;}'
   - ./test/test-ready.sh
