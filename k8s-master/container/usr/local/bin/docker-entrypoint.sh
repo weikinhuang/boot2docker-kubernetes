@@ -11,7 +11,7 @@ function b2d-k8s::is::entrypoint() {
 }
 
 function bd2-k8s::setup::check-overlay() {
-    cat /proc/filesystems | grep overlay
+    cat /proc/filesystems | grep -q overlay
 }
 
 function bd2-k8s::setup::master-node() {

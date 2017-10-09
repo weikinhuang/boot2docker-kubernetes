@@ -9,18 +9,24 @@ function get-pods() {
 }
 
 COUNTER=0
+EXIT_STATUS=1
 while [  $COUNTER -lt 30 ]; do
     get-node-status
     docker-compose exec master bash -c "docker ps"
-    READY_NODES=$(get-node-status | grep Ready | wc -l)
-    if [[ $READY_NODES == 2 ]]; then
-        get-pods
-        exit 0
+    READY_NODES=$(get-node-status | grep '\<Ready\>' | wc -l)
+    if [[ ${READY_NODES} == 2 ]]; then
+        EXIT_STATUS=0
+        break
     fi
     let COUNTER=COUNTER+1
     sleep 10
 done
 
-echo "There no nodes ready"
+if [[ ${EXIT_STATUS} == 0 ]]; then
+    get-pods
+    echo "Cluster successfully bootstrapped!"
+else
+    echo "There no nodes ready!"
+fi
 docker-compose exec master bash -c "docker images"
-exit 1
+exit ${EXIT_STATUS}
