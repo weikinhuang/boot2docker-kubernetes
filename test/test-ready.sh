@@ -12,7 +12,6 @@ COUNTER=0
 EXIT_STATUS=1
 while [  $COUNTER -lt 30 ]; do
     get-node-status
-    docker-compose exec master bash -c "docker ps"
     READY_NODES=$(get-node-status | grep '\<Ready\>' | wc -l)
     if [[ ${READY_NODES} == 2 ]]; then
         EXIT_STATUS=0
