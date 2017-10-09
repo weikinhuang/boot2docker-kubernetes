@@ -10,6 +10,10 @@ function b2d-k8s::is::entrypoint() {
     echo "$@" | grep -q '/sbin/init'
 }
 
+function bd2-k8s::setup::check-overlay() {
+    cat /proc/filesystems | grep overlay
+}
+
 function bd2-k8s::setup::master-node() {
     rm -f /mnt/share/data/kubeconfig.node
     systemctl enable bootkube.service
@@ -26,6 +30,11 @@ function bd2-k8s::setup::node() {
     else
         # wait for master node to finish `setup`
         sleep 5
+    fi
+
+    # if the system doesn't support overlay, don't use it!
+    if ! bd2-k8s::setup::check-overlay; then
+        rm -f /etc/systemd/system/docker.service.d/10-overlay.conf
     fi
 
     if [[ ! -e /.node-setup ]]; then
