@@ -96,34 +96,11 @@ $ docker-compose down -v
 $ docker volume rm $(docker volume ls -f dangling=true -q)
 ```
 
-## Debugging
-
-#### Checking logs
-
-Check `systemd` logs:
-
-```bash
-# Check bootkube logs
-$ docker-compose exec master journalctl -f -u bootkube.service
-
-# Check kubelet logs on master node
-$ docker-compose exec master journalctl -f -u kubelet.service
-
-# Check kubelet logs on worker node
-$ docker-compose exec node journalctl -f -u kubelet.service
-```
-
-Entering a container:
-
-```bash
-# Enter master node
-$ docker-compose exec master bash
-
-# Enter worker node
-$ docker-compose exec node bash
-```
-
 ## Configuration
+
+### Exposing ports
+
+TODO: fill in
 
 ### Running with a different number of worker nodes
 
@@ -167,6 +144,20 @@ environment variables starting with `BOOTKUBE_` is added to the `bootkube render
       - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
 ```
 
+#### Using externally generated bootkube assets
+
+This setup can use pre-generated bootkube assets under `./data/assets` automatically, and won't internally generate any
+assets. However assets **must** be generated with the following options: `--api-servers=https://master.:6443` and
+`--api-server-alt-names` must have a minimum of `DNS=master,DNS=master.`. If the external etcd server (non self-hosted)
+is to be used, the flag `--etcd-servers=http://etcd1.:2379` must be specified.
+
+```bash
+bootkube render \
+    --api-servers=https://master.:6443 \
+    --api-server-alt-names=DNS=master,DNS=master. \
+    --etcd-servers=http://etcd1.:2379
+```
+
 ### Kubernetes
 
 #### Version
@@ -207,6 +198,33 @@ Images can be exported by entering the node:
 $ docker-compose exec master bash
 # inside the container
 $ docker images | tr -s ' ' | cut -f1-2 -d ' ' | tail -n +2 | tr ' ' ':' | xargs -I{} sh -c 'docker save -o "/data/images/all/$(echo "{}" | tr ':' '@' | tr '/' '=').tar" "{}"'
+```
+
+## Debugging
+
+#### Checking logs
+
+Check `systemd` logs:
+
+```bash
+# Check bootkube logs
+$ docker-compose exec master journalctl -f -u bootkube.service
+
+# Check kubelet logs on master node
+$ docker-compose exec master journalctl -f -u kubelet.service
+
+# Check kubelet logs on worker node
+$ docker-compose exec node journalctl -f -u kubelet.service
+```
+
+Entering a container:
+
+```bash
+# Enter master node
+$ docker-compose exec master bash
+
+# Enter worker node
+$ docker-compose exec node bash
 ```
 
 ## Motivation
