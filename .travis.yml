@@ -8,7 +8,7 @@ services:
 before_script:
   - docker-compose build
   - docker-compose up -d
-  - sh -c 'docker-compose exec master journalctl -f | grep -v kubelet-wrapper.sh | { sed "/Started Bootkube Kubernetes Bootstrap/ q" && kill $$ ;}' || true
+  - sh -c 'docker-compose exec master journalctl -f | grep -v kubelet-wrapper.sh | { sed "/===== Bootkube deployed successfully =====/ q" && kill $$ ;}' || true
 
 script:
   - ./test/test-ready.sh
