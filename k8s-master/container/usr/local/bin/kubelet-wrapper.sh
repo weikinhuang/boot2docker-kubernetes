@@ -7,19 +7,22 @@ for envname in ${!KUBELET_ARGS*}; do
     KUBELET_EXTRA_ARGS+=( $(printenv "${envname}") )
 done
 
+# generate hostname with docker-compose container name
+DOCKER_NAME="$(self-container-info.sh | jq -r '.[0].Name' | cut -f2 -d'/' | sed -e 's/[^A-Za-z0-9]/-/g')"
+KUBELET_HOSTNAME="$(hostname)"
+
 # add node labels for master
 # @todo: append labels rather than override
 if [[ -n ${K8S_MASTER_NODE:-} ]]; then
-    KUBELET_EXTRA_ARGS+=( --node-labels=node-role.kubernetes.io/master,master=true )
+    KUBELET_EXTRA_ARGS+=( --node-labels=docker-id=${DOCKER_NAME},node-role.kubernetes.io/master,master=true )
+else
+    KUBELET_EXTRA_ARGS+=( --node-labels=docker-id=${DOCKER_NAME} )
 fi
 
 # kubelet >= v1.8.0 has new flags for swap
 if docker run --rm ${HYPERKUBE_IMAGE_URL}:${HYPERKUBE_IMAGE_TAG} /hyperkube kubelet --help 2>&1 | grep -q -- --fail-swap-on; then
     KUBELET_EXTRA_ARGS+=( --fail-swap-on=false )
 fi
-
-# generate hostname with docker-compose container name
-KUBELET_HOSTNAME="$(self-container-info.sh | jq -r '.[0].Name' | cut -f2 -d'/' | sed -e 's/[^A-Za-z0-9]/-/g')-$(hostname)"
 
 set -x
 

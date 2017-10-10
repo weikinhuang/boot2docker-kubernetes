@@ -66,6 +66,13 @@ RUN set -x \
 # docker files should avoid the overlay when possible
 VOLUME /var/lib/docker
 
+# fix issues with running /var/lib/kubelet under aufs
+# Fail to get rootfs information failed to get device for dir "/var/lib/kubelet": could not find device with major: 0, minor: 45 in cached partitions map
+# @see https://github.com/kubernetes/kubernetes/issues/38337
+RUN set -x \
+    && mkdir -p /var/lib/kubelet-shared
+VOLUME /var/lib/kubelet-shared
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 # Workaround for docker/docker#27202, technique based on comments from docker/docker#9212
 CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
