@@ -56,7 +56,7 @@ if [[ ! -d /root/assets ]]; then
         # use defined version of k8s
         grep -R -l 'image: quay.io/coreos/hyperkube:' /root/assets \
             | grep '.yaml$' \
-            | xargs sed -i -E "s#image: quay.io/coreos/hyperkube:.*#image: quay.io/coreos/hyperkube:${HYPERKUBE_IMAGE_TAG}#g"
+            | xargs sed -i -E "s#image: quay.io/coreos/hyperkube:.*#image: ${HYPERKUBE_IMAGE_URL}:${HYPERKUBE_IMAGE_TAG}#g"
         grep -R -l 'rbac.authorization.k8s.io/v1alpha1' /root/assets \
             | grep '.yaml$' \
             | xargs sed -i -E "s#rbac.authorization.k8s.io/v1alpha1#rbac.authorization.k8s.io/v1#g"

@@ -7,7 +7,7 @@ services:
   # each additional type of node type can simply extend this (see master node)
   node:
     build:
-      context: ./k8s-master
+      context: ./k8s-node
     working_dir: /data
     tty: true
     privileged: true
