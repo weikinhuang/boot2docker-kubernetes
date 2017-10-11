@@ -15,7 +15,7 @@ touch /mnt/share/data/.initialized
 # clean up old running containers
 docker rm -f $(docker ps -aq) || true
 
-HOST_IP=$(docker-host.sh run --rm --net=host alpine:latest ip addr | grep '\<eth0\>' | grep inet | awk '{print $2}' | cut -d '/' -f1)
+HOST_IP=$(docker-host-ip.sh)
 NODE_IP=$(ip addr | grep eth0 | grep inet | awk '{print $2}' | cut -d '/' -f1)
 
 # create assets for bootkube
