@@ -34,9 +34,13 @@ services:
       - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
     ports:
       - 6443:6443
-      # kubernetes NodePort service range
+      # kubernetes NodePort service range is 30000-32767
       # https://kubernetes.io/docs/concepts/services-networking/service/
-      # - "30000-32767"
+      # however, allocating that many ports will cause issues when starting & stopping the master node, so to
+      # avoid that we allocate 32 ports in the range of 30000-30032, please explicitly define `nodePort` in services
+      # to expose those services
+      - "30000-30032:30000-30032"
+      - "30000-30032:30000-30032/udp"
 
   # running instance of etcd because etcd operator has issues with durability
   # @see https://github.com/coreos/etcd-operator/issues/1323

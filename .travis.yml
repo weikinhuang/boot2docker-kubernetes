@@ -12,3 +12,4 @@ before_script:
 
 script:
   - ./test/test-ready.sh
+  - ./test/test-pod.sh
