@@ -7,7 +7,7 @@ function b2d-k8s::is::master() {
 }
 
 function b2d-k8s::is::entrypoint() {
-    echo "$@" | grep -q '/sbin/init'
+    echo "$@" | grep -q '/bin/systemd'
 }
 
 function bd2-k8s::setup::check-overlay() {
@@ -26,7 +26,7 @@ function bd2-k8s::setup::worker-node() {
 function bd2-k8s::setup::node() {
     if b2d-k8s::is::master; then
         # setup systemd cgroup hierarchy at /sys/fs/cgroup/systemd
-        docker-host.sh run --rm --privileged -v /:/host "${SYSTEMD_SETUP_IMAGE}" setup || true
+        docker-host.sh run --rm --privileged -v /:/host "$(self-container-info.sh | jq -r '.[0].Config.Image')" setup-systemd.sh || true
     else
         # wait for master node to finish `setup`
         sleep 5

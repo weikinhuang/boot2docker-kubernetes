@@ -18,15 +18,12 @@ services:
     volumes:
       # for setting up bootkube's auto host kubeconfig and getting container info
       - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
-      # for systemd
+      # systemd needs read-only access to the kernel's cgroup hierarchies
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       # for sharing data between containers
       - mnt-share-data:/mnt/share/data:rw
       # outside data dir access
       - ./data:/data
-    tmpfs:
-      - /run
-      - /run/lock
 
   master:
     extends:
@@ -37,6 +34,9 @@ services:
       - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
     ports:
       - 6443:6443
+      # kubernetes NodePort service range
+      # https://kubernetes.io/docs/concepts/services-networking/service/
+      # - "30000-32767"
 
   # running instance of etcd because etcd operator has issues with durability
   # @see https://github.com/coreos/etcd-operator/issues/1323

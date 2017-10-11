@@ -1,5 +1,7 @@
-FROM solita/ubuntu-systemd:latest
+FROM debian:stretch-slim
+LABEL maintainer="Wei Kin Huang"
 
+# Install base dependencies
 RUN set -x \
     && apt-get update -qq \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
@@ -16,6 +18,7 @@ RUN set -x \
         jq \
         net-tools \
         socat \
+        systemd \
         tcpdump \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -23,12 +26,22 @@ RUN set -x \
 # Install specific Docker version
 ENV DOCKER_VERSION 17.09.0~ce-0~ubuntu
 RUN set -x \
+    && apt-get update && apt-get install -y --no-install-recommends \
+        dirmngr \
+        gnupg \
+    \
+    && export GNUPGHOME="$(mktemp -d)" \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
     && mkdir -p /etc/apt/sources.list.d \
     && echo "deb https://download.docker.com/linux/ubuntu xenial stable" > /etc/apt/sources.list.d/docker.list \
     && apt-get update -qq \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
         docker-ce=${DOCKER_VERSION} \
+    \
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
+        dirmngr \
+        gnupg \
+    && rm -r "$GNUPGHOME" \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -46,8 +59,19 @@ ARG HYPERKUBE_IMAGE_TAG=${KUBERNETES_VERSION}_coreos.0
 ENV HYPERKUBE_IMAGE_URL $HYPERKUBE_IMAGE_URL
 ENV HYPERKUBE_IMAGE_TAG $HYPERKUBE_IMAGE_TAG
 
-# Image used to run setup host for systemd in docker
-ENV SYSTEMD_SETUP_IMAGE solita/ubuntu-systemd:latest
+# Tell systemd that it's running in a container environment
+ENV container docker
+
+# Don't start any optional services except for the few we need.
+RUN set -x \
+    && find \
+        /etc/systemd/system \
+        /lib/systemd/system \
+        -path '*.wants/*' \
+        -not -name '*journald*' \
+        -not -name '*systemd-tmpfiles*' \
+        -not -name '*systemd-user-sessions*' \
+        -exec rm \{} \;
 
 # install (latest) kubectl
 RUN set -x \
@@ -59,6 +83,7 @@ COPY container/ /
 
 # enable docker & kubelet
 RUN set -x \
+    && systemctl set-default multi-user.target \
     && systemctl enable docker.service \
     && systemctl enable kubelet.path \
     && systemctl enable import-saved-images.service
@@ -73,6 +98,9 @@ RUN set -x \
     && mkdir -p /var/lib/kubelet-shared
 VOLUME /var/lib/kubelet-shared
 
+# systemd stop signal
+STOPSIGNAL SIGRTMIN+3
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 # Workaround for docker/docker#27202, technique based on comments from docker/docker#9212
-CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
+CMD ["/bin/bash", "-c", "exec /bin/systemd --log-target=journal 3>&1"]
