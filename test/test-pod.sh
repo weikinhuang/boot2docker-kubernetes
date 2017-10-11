@@ -32,4 +32,4 @@ if [[ ${EXIT_STATUS} == 1 ]]; then
     exit 1
 fi
 
-curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://127.0.0.1:30001
+curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://docker:30001
