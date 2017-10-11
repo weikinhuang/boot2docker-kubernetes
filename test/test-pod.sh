@@ -15,7 +15,7 @@ function is-pod-ready() {
 }
 
 function docker-host-ip() {
-    docker-compose exec master bash -c "docker-host-ip.sh"
+    docker-compose exec master bash -c "docker-host-ip.sh" | tr -d '\r'
 }
 
 create-test-pod
