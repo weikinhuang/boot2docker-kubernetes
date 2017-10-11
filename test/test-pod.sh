@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function create-test-pod() {
-    docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl apply -f /data/etest/echoserver.yaml"
+    docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl apply -f /data/test/echoserver.yaml"
 }
 
 function get-pods() {
