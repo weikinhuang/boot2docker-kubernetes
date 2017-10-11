@@ -53,6 +53,11 @@ function bd2-k8s::setup::node() {
         echo "K8S_MASTER_NODE=${K8S_MASTER_NODE:-}" >> /etc/systemd/system/kubelet.env || true
 
         touch /.node-setup
+    else
+        # update kubeconfig on boot
+        if b2d-k8s::is::master; then
+            export-kubeconfig.sh
+        fi
     fi
 }
 

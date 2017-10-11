@@ -14,10 +14,6 @@ function is-pod-ready() {
     docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl get pods -l app=echoheaders" | grep '1/1' | grep -q '\<Running\>'
 }
 
-function docker-host-ip() {
-    docker-compose exec master bash -c "docker-host-ip.sh" | tr -d '\r'
-}
-
 create-test-pod
 
 COUNTER=0
@@ -38,4 +34,4 @@ if [[ ${EXIT_STATUS} == 1 ]]; then
     exit 1
 fi
 
-curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://$(docker-host-ip):30001
+docker-compose exec master bash -c "curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://127.0.0.1:30001"
