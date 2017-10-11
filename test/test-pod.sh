@@ -12,6 +12,8 @@ function is-pod-ready() {
     docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl get pods -l app=echoheaders" | grep -q '\<Running\>'
 }
 
+create-test-pod
+
 COUNTER=0
 EXIT_STATUS=1
 while [  $COUNTER -lt 30 ]; do
