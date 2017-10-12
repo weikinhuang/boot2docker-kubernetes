@@ -2,6 +2,8 @@ version: '2'
 
 services:
   master:
+    environment:
+      - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
     volumes:
       # for dev
       - ./k8s-node/container/usr/local/bin/boot-k8s.sh:/usr/local/bin/boot-k8s.sh:ro

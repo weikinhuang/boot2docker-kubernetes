@@ -44,7 +44,14 @@ fi
 
 # test using non fqdn
 docker-compose exec master bash -c "curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://127.0.0.1:30002"
+curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://127.0.0.1:40002
+
 # test using fqdn
 docker-compose exec master bash -c "curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://127.0.0.1:30003"
+curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://127.0.0.1:40003
+
 # test hostport
-#docker-compose exec master bash -c "curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://127.0.0.1:30012"
+if [[ -n ${TRAVIS_HAS_HOSTPORT:-} ]]; then
+    docker-compose exec master bash -c "curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://127.0.0.1:30012"
+    curl --fail -SL --connect-timeout 10 --max-time 15 -v -i http://127.0.0.1:40012
+fi

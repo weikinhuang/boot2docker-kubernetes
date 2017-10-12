@@ -5,12 +5,22 @@ language: bash
 services:
   - docker
 
+env:
+  - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=flannel TRAVIS_HAS_HOSTPORT=1
+  - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-canal
+  - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
+
 before_script:
-  - docker-compose build
-  - docker-compose up -d
-  - docker-compose exec master wait-for-bootkube-ready.sh
+  - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml build
+  - touch travis.env
+  - env > travis.env
 
 script:
+  - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml up -d
+  - docker-compose exec master wait-for-bootkube-ready.sh
   - ./test/test-ready.sh
   - ./test/test-pod.sh
   - ./test/test-service.sh
+
+after_script:
+  - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml down -v
