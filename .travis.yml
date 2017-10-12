@@ -11,10 +11,10 @@ env:
   - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
 
 before_script:
+  - env | grep 'BOOTKUBE_CONF_NETWORK_PROVIDER\|TRAVIS' > travis.env
   - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml build
 
 script:
-  - env | grep 'BOOTKUBE_CONF_NETWORK_PROVIDER\|TRAVIS' > travis.env
   - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml up -d
   - docker-compose exec master wait-for-bootkube-ready.sh
   - ./test/test-ready.sh
