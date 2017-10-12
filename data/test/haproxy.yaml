@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: haproxy
+  labels:
+    app: haproxy
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30002
+    protocol: TCP
+    name: http
+  - port: 81
+    targetPort: 81
+    nodePort: 30003
+    protocol: TCP
+    name: http-fqdn
+  selector:
+    app: haproxy
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: haproxy-config
+data:
+  haproxy.cfg: |
+    global
+      maxconn  4000
+      pidfile  /var/run/haproxy.pid
+      log /var/run/rsyslog/dev/log local0
+      log /var/run/rsyslog/dev/log local1 warning
+
+    defaults
+      log  global
+      maxconn  8000
+      option   redispatch
+      default-server  init-addr last,libc,none
+      retries  3
+      timeout  http-request 10s
+      timeout  queue 1m
+      timeout  connect 10s
+      timeout  client 36000s
+      timeout  server 36000s
+      timeout  check 10s
+
+    resolvers kubernetes
+      nameserver k8s 10.3.0.10:53
+      resolve_retries 10
+      timeout retry   2s
+      hold valid      30s
+
+    listen echoheaders
+      bind 0.0.0.0:80
+      mode http
+
+      option forwardfor
+
+      server echoheaders echoheaders:80 check maxconn 1024 weight 1
+
+    listen echoheaders-fqdn
+      bind 0.0.0.0:81
+      mode http
+
+      option forwardfor
+
+      server echoheaders echoheaders.default.svc.cluster.local:80 check resolvers kubernetes maxconn 1024 weight 1
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: haproxy
+  labels:
+    app: haproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: haproxy
+  template:
+    metadata:
+      labels:
+        app: haproxy
+    spec:
+      containers:
+      - name: haproxy
+        image: haproxy:alpine
+        ports:
+        - containerPort: 80
+          hostPort: 30012
+        - containerPort: 81
+        volumeMounts:
+          - mountPath: /usr/local/etc/haproxy/haproxy.cfg
+            name: haproxy-config
+            subPath: haproxy.cfg
+          - mountPath: /var/run/rsyslog/dev
+            name: logging
+      - name: rsyslog
+        image: jumanjiman/rsyslog:latest
+        volumeMounts:
+          - mountPath: /var/run/rsyslog/dev
+            name: logging
+      volumes:
+      - name: haproxy-config
+        configMap:
+          name: haproxy-config
+          items:
+            - key: haproxy.cfg
+              path: haproxy.cfg
+              mode: 0644
+      - name: logging
+        emptyDir:
+          medium: "Memory"

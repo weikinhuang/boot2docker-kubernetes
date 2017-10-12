@@ -13,3 +13,4 @@ before_script:
 script:
   - ./test/test-ready.sh
   - ./test/test-pod.sh
+  - ./test/test-service.sh

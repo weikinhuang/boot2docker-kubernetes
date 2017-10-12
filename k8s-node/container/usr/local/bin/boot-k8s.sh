@@ -93,5 +93,7 @@ if [[ -d /data/bootstrap-manifests ]]; then
     sleep 15
     env KUBECONFIG=/root/assets/auth/kubeconfig kubectl apply -R -f /data/bootstrap-manifests || true
 fi
+# wait for dns changes
+sleep 15
 
 echo '===== Bootkube deployed successfully ====='
