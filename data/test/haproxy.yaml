@@ -75,14 +75,14 @@ metadata:
     app: haproxy
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: haproxy
   template:
     metadata:
       labels:
         app: haproxy
     spec:
-      selector:
-        matchLabels:
-          app: haproxy
       nodeSelector:
         node-role.kubernetes.io/master: ""
       tolerations:

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 function get-node-status() {
-    docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl get nodes"
+    kubectl get nodes
 }
 
 function get-pods() {
-    docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl get pods --all-namespaces -o wide"
+    kubectl get pods --all-namespaces -o wide
 }
 
 COUNTER=0

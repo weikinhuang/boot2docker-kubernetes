@@ -3,19 +3,19 @@
 set -x
 
 function create-test-pods() {
-    docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl apply -f /data/test/echoserver.yaml"
-    docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl apply -f /data/test/haproxy.yaml"
+    kubectl apply -f /data/test/echoserver.yaml
+    kubectl apply -f /data/test/haproxy.yaml
 }
 
 function get-pods() {
-    docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl get pods -o wide"
+    kubectl get pods -o wide
 }
 
 function is-echoheaders-ready() {
-    docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl get pods -l app=echoheaders" | grep '1/1' | grep -q '\<Running\>'
+    kubectl get pods -l app=echoheaders | grep '1/1' | grep -q '\<Running\>'
 }
 function is-haproxy-ready() {
-    docker-compose exec master bash -c "env KUBECONFIG=/root/assets/auth/kubeconfig kubectl get pods -l app=haproxy" | grep '2/2' | grep -q '\<Running\>'
+    kubectl get pods -l app=haproxy | grep '2/2' | grep -q '\<Running\>'
 }
 
 function is-pod-ready() {

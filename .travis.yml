@@ -11,7 +11,10 @@ env:
   - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
 
 before_script:
+  - sudo curl -sSL --fail https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl
+  - sudo chmod +x /usr/local/bin/kubectl
   - env | grep 'BOOTKUBE_CONF_NETWORK_PROVIDER\|TRAVIS' > travis.env
+  - export KUBECONFIG=$(pwd)/data/kubeconfig
   - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml build
 
 script:
