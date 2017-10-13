@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+function scale-workers() {
+    kubectl scale -n workers --timeout=30s --replicas=1 deploy/k8s-worker
+}
+
 function get-node-status() {
     kubectl get nodes
 }
@@ -7,6 +11,8 @@ function get-node-status() {
 function get-pods() {
     kubectl get pods --all-namespaces -o wide
 }
+
+scale-workers
 
 COUNTER=0
 EXIT_STATUS=1

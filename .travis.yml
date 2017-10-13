@@ -7,7 +7,7 @@ services:
 
 env:
   - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=flannel TRAVIS_HAS_HOSTPORT=1
-  - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-canal
+#  - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-canal
   - BOOTKUBE_CONF_NETWORK_PROVIDER=--network-provider=experimental-calico
 
 before_script:
@@ -18,9 +18,9 @@ before_script:
   - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml build
 
 script:
-  - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml up -d
+  - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml up -d --scale node=0
   - docker-compose exec master wait-for-bootkube-ready.sh
-  - ./test/test-ready.sh
+  - ./test/test-worker-scale.sh
   - ./test/test-pod.sh
   - ./test/test-service.sh
 
