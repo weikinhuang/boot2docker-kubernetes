@@ -20,6 +20,7 @@ before_script:
 script:
   - docker-compose -f docker-compose.yaml -f docker-compose.travis.yaml up -d --scale node=0
   - docker-compose exec master wait-for-bootkube-ready.sh
+  - ./test/wait-for-ready.sh
   - ./test/test-worker-scale.sh
   - ./test/test-pod.sh
   - ./test/test-service.sh

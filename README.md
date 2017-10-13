@@ -114,6 +114,16 @@ $ docker-compose up -d --scale node=0
 $ docker-compose up -d --scale node=3
 ```
 
+Nodes can also be scaled via a kubernetes deployment
+
+```bash
+# run with 0 worker nodes
+$ kubectl scale -n workers --replicas=0 deploy/k8s-worker
+
+# run with 3 worker nodes
+$ kubectl scale -n workers --replicas=3 deploy/k8s-worker
+```
+
 However when scaling down, nodes must be manually deleted
 
 ```bash
