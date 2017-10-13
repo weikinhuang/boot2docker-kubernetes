@@ -9,6 +9,7 @@ services:
       - ./k8s-node/container/usr/local/bin/boot-k8s.sh:/usr/local/bin/boot-k8s.sh:ro
       - ./k8s-node/container/usr/local/bin/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh:ro
       - ./k8s-node/container/usr/local/bin/kubelet-wrapper.sh:/usr/local/bin/kubelet-wrapper.sh:ro
+      - ./k8s-node/container/usr/local/bin/deploy-workers.sh:/usr/local/bin/deploy-workers.sh:ro
 
   # repeat for each additional worker node
   node:

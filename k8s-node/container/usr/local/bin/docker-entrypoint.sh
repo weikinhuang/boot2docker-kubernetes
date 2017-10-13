@@ -21,6 +21,7 @@ function bd2-k8s::setup::master-node() {
 
 function bd2-k8s::setup::worker-node() {
     systemctl enable kubeconfig.path
+    systemctl enable worker-stop.service
 }
 
 function bd2-k8s::setup::node() {

@@ -93,7 +93,9 @@ if [[ -d /data/bootstrap-manifests ]]; then
     sleep 15
     env KUBECONFIG=/root/assets/auth/kubeconfig kubectl apply -R -f /data/bootstrap-manifests || true
 fi
+# Set up deployment for worker nodes
+env KUBECONFIG=/root/assets/auth/kubeconfig deploy-workers.sh
 # wait for dns changes
-sleep 15
+sleep 10
 
 echo '===== Bootkube deployed successfully ====='

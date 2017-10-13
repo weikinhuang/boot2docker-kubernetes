@@ -18,7 +18,7 @@ RUN set -x \
         jq \
         net-tools \
         socat \
-        systemd \
+        systemd-container \
         tcpdump \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
