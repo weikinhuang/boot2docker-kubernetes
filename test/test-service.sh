@@ -3,8 +3,8 @@
 set -x
 
 function create-test-pods() {
-    kubectl apply -f /data/test/echoserver.yaml
-    kubectl apply -f /data/test/haproxy.yaml
+    kubectl apply -f ./data/test/echoserver.yaml
+    kubectl apply -f ./data/test/haproxy.yaml
 }
 
 function get-pods() {

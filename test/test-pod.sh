@@ -3,7 +3,7 @@
 set -x
 
 function create-test-pod() {
-    kubectl apply -f /data/test/echoserver.yaml
+    kubectl apply -f ./data/test/echoserver.yaml
 }
 
 function get-pods() {
