@@ -30,7 +30,7 @@ services:
       service: node
     environment:
       - K8S_MASTER_NODE=1
-      - BOOTKUBE_IMAGE_TAG=v0.7.0
+      - BOOTKUBE_IMAGE_TAG=v0.8.0
     ports:
       - 6443:6443
       # kubernetes NodePort service range is 30000-32767

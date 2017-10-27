@@ -140,7 +140,7 @@ Bootkube version can be specified with an environment variable on the master nod
   master:
     environment:
       - BOOTKUBE_IMAGE_URL=quay.io/coreos/bootkube
-      - BOOTKUBE_IMAGE_TAG=v0.7.0
+      - BOOTKUBE_IMAGE_TAG=v0.8.0
 ```
 
 #### Options
@@ -177,8 +177,8 @@ Kubernetes' hyperkube image can be specified with an environment variable on the
 ```yaml
   node:
     environment:
-      - HYPERKUBE_IMAGE_URL=quay.io/coreos/hyperkube
-      - HYPERKUBE_IMAGE_TAG=v1.8.0_coreos.0
+      - HYPERKUBE_IMAGE_URL=gcr.io/google_containers/hyperkube
+      - HYPERKUBE_IMAGE_TAG=v1.8.2
 ```
 
 #### `kubelet` options

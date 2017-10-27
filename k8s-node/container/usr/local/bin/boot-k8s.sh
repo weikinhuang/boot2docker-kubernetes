@@ -54,12 +54,9 @@ if [[ ! -d /root/assets ]]; then
             --api-server-alt-names=IP=${HOST_IP},IP=${NODE_IP},IP=127.0.0.1,DNS=master,DNS=master.,DNS=${HOST_IP}.xip.io,DNS=${NODE_IP}.xip.io,DNS=127.0.0.1.xip.io
 
         # use defined version of k8s
-        grep -R -l 'image: quay.io/coreos/hyperkube:' /root/assets \
+        grep -R -l 'image: gcr.io/google_containers/hyperkube:' /root/assets \
             | grep '.yaml$' \
-            | xargs sed -i -E "s#image: quay.io/coreos/hyperkube:.*#image: ${HYPERKUBE_IMAGE_URL}:${HYPERKUBE_IMAGE_TAG}#g"
-        grep -R -l 'rbac.authorization.k8s.io/v1alpha1' /root/assets \
-            | grep '.yaml$' \
-            | xargs sed -i -E "s#rbac.authorization.k8s.io/v1alpha1#rbac.authorization.k8s.io/v1#g"
+            | xargs sed -i -E "s#image: gcr.io/google_containers/hyperkube:.*#image: ${HYPERKUBE_IMAGE_URL}:${HYPERKUBE_IMAGE_TAG}#g"
     fi
 fi
 
