@@ -56,7 +56,8 @@ if [[ ! -d /root/assets ]]; then
         # use defined version of k8s
         grep -R -l 'image: gcr.io/google_containers/hyperkube:' /root/assets \
             | grep '.yaml$' \
-            | xargs -r sed -i -E "s#image: gcr.io/google_containers/hyperkube:.*#image: ${HYPERKUBE_IMAGE_URL}:${HYPERKUBE_IMAGE_TAG}#g"
+            | xargs -r sed -i -E "s#image: gcr.io/google_containers/hyperkube:.*#image: ${HYPERKUBE_IMAGE_URL}:${HYPERKUBE_IMAGE_TAG}#g" \
+        || true
     fi
 fi
 
