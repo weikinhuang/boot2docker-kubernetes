@@ -46,8 +46,8 @@ $ docker-compose exec master journalctl -f -u bootkube.service
 ```bash
 $ kubectl get nodes -o wide
 NAME           STATUS    ROLES     AGE       VERSION           EXTERNAL-IP   OS-IMAGE                      KERNEL-VERSION       CONTAINER-RUNTIME
-406a75bafd18   Ready     <none>    54m       v1.8.2            <none>        Debian GNU/Linux 8 (jessie)   4.4.84-boot2docker   docker://Unknown
-698bb16ca1a0   Ready     master    55m       v1.8.2            <none>        Debian GNU/Linux 8 (jessie)   4.4.84-boot2docker   docker://Unknown
+406a75bafd18   Ready     <none>    54m       v1.8.3            <none>        Debian GNU/Linux 8 (jessie)   4.4.84-boot2docker   docker://Unknown
+698bb16ca1a0   Ready     master    55m       v1.8.3            <none>        Debian GNU/Linux 8 (jessie)   4.4.84-boot2docker   docker://Unknown
 
 $ kubectl get nodes -o custom-columns=DOCKER:.metadata.labels.docker-id,NAME:.metadata.name,INTERNAL-IP:.status.addresses[0].address
 DOCKER                           NAME           INTERNAL-IP
@@ -140,7 +140,7 @@ Bootkube version can be specified with an environment variable on the master nod
   master:
     environment:
       - BOOTKUBE_IMAGE_URL=quay.io/coreos/bootkube
-      - BOOTKUBE_IMAGE_TAG=v0.8.0
+      - BOOTKUBE_IMAGE_TAG=v0.8.2
 ```
 
 #### Options
@@ -178,7 +178,7 @@ Kubernetes' hyperkube image can be specified with an environment variable on the
   node:
     environment:
       - HYPERKUBE_IMAGE_URL=gcr.io/google_containers/hyperkube
-      - HYPERKUBE_IMAGE_TAG=v1.8.2
+      - HYPERKUBE_IMAGE_TAG=v1.8.3
 ```
 
 #### `kubelet` options
