@@ -43,7 +43,7 @@ data:
         up -d --no-recreate --no-build --scale ${NODE_TYPE}=${DESIRED_PODS:-0}
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: workers-controller
@@ -74,7 +74,7 @@ rules:
   - list
   - watch
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: workers-controller

@@ -14,7 +14,7 @@ services:
     security_opt:
       - seccomp=unconfined
     environment:
-      - HYPERKUBE_IMAGE_TAG=v1.8.3
+      - HYPERKUBE_IMAGE_TAG=v1.9.1
     volumes:
       # for setting up bootkube's auto host kubeconfig and getting container info
       - /var/run/docker.sock:/mnt/HOST_DOCKER.sock
@@ -30,7 +30,7 @@ services:
       service: node
     environment:
       - K8S_MASTER_NODE=1
-      - BOOTKUBE_IMAGE_TAG=v0.8.2
+      - BOOTKUBE_IMAGE_TAG=v0.9.1
     ports:
       - 6443:6443
       # kubernetes NodePort service range is 30000-32767

@@ -32,7 +32,7 @@ metadata:
 # ------------------- Dashboard Role & Role Binding ------------------- #
 
 kind: Role
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: kubernetes-dashboard-minimal
   namespace: kube-system
@@ -53,7 +53,7 @@ rules:
   verbs: ["proxy"]
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: kubernetes-dashboard-minimal
@@ -68,7 +68,7 @@ subjects:
   namespace: kube-system
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: kubernetes-dashboard
@@ -106,7 +106,7 @@ spec:
     spec:
       containers:
       - name: kubernetes-dashboard
-        image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1
+        image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.8.0
         ports:
         - containerPort: 9090
           protocol: TCP
