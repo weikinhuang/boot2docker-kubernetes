@@ -12,21 +12,21 @@ VERSION_KUBERNETES="v1.9.0"
 #==============================================================================
 # Variables
 #==============================================================================
-DOCKER_MACHINE_NAME="${DOCKER_MACHINE_NAME:-default}"
+MINIKUBE_MACHINE_NAME="${MINIKUBE_MACHINE_NAME:-default}"
 
 #==============================================================================
 # minikube internal functions
 #==============================================================================
 function docker-machine::start() {
-  docker-machine start "${DOCKER_MACHINE_NAME}" "$@"
+  docker-machine start "${MINIKUBE_MACHINE_NAME}" "$@"
 }
 
 function docker-machine::ssh() {
-  docker-machine ssh "${DOCKER_MACHINE_NAME}" "$@"
+  docker-machine ssh "${MINIKUBE_MACHINE_NAME}" "$@"
 }
 
 function docker-machine::ip() {
-  docker-machine ip "${DOCKER_MACHINE_NAME}"
+  docker-machine ip "${MINIKUBE_MACHINE_NAME}"
 }
 
 function minikube::setup() {
